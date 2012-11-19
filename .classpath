@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="lib/hierarchyviewerlib/src"/>
+	<classpathentry kind="src" path="lib/ddmuilib/src"/>
+	<classpathentry kind="src" path="lib/ddmlib/src"/>
+	<classpathentry kind="src" path="lib/swtmenubar/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.core.commands_3.4.0.I20080509-2000.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.jface_3.4.2.M20090107-0800.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.equinox.common_3.4.0.v20080421-2006.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.12.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.9-swt.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/sdklib.jar"/>
+	<classpathentry kind="lib" path="lib/linux-x86/swt.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
