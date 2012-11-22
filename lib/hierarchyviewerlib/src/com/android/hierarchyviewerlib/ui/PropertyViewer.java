@@ -65,6 +65,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.ArrayList;
 
@@ -164,7 +165,7 @@ public class PropertyViewer extends Composite implements ITreeChangeListener {
         }
 
         public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-            // pass
+        	System.out.println("InputChanged" + oldInput + " new:" + newInput);
         }
 
         public Image getColumnImage(Object element, int column) {
@@ -222,10 +223,21 @@ public class PropertyViewer extends Composite implements ITreeChangeListener {
         mTreeViewer.setCellEditors(new CellEditor[] {new TextCellEditor(mTree), new TextCellEditor(mTree)});
         //mTreeViewer.getColumnViewerEditor()
         mTreeViewer.setCellModifier(new ICellModifier() {
-			
 			@Override
-			public void modify(Object obj, String columnProperty, Object obj1) {
-				
+			public void modify(Object item, String columnProperty, Object newValue) {
+				TreeItem treeItem = (TreeItem) item;
+				Property property = (Property) treeItem.getData();
+				if (columnProperty == VALUE_COLUMN) {
+					property.value = (String) newValue;
+					mTreeViewer.update(treeItem, new String[] {PROPERTY_NAME_COLUMN, VALUE_COLUMN});
+//					mTreeViewer.refresh();
+				}
+//				Property property = (Property) treeItem.getData();
+//				property.value = (String) newValue;
+//				String [] affectedProperties = new String[] {VALUE_COLUMN}; //optional - might speedup update
+//				treeItem.setData(property);
+//				mTreeViewer.update(treeItem, null);
+				System.out.println("modify: " + treeItem.getData().getClass() + " " + treeItem.getData().toString() + " newVal:" + newValue.toString() + " prop:" +columnProperty);
 			}
 			
 			@Override
