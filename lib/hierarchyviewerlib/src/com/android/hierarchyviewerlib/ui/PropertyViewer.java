@@ -23,10 +23,27 @@ import com.android.hierarchyviewerlib.models.TreeViewModel.ITreeChangeListener;
 import com.android.hierarchyviewerlib.ui.util.DrawableViewNode;
 import com.android.hierarchyviewerlib.ui.util.TreeColumnResizer;
 
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.ColumnViewerEditor;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
+import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.ITreeViewerListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.TreeExpansionEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -34,18 +51,28 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.HelpListener;
+import org.eclipse.swt.events.MenuDetectEvent;
+import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
 import java.util.ArrayList;
 
 public class PropertyViewer extends Composite implements ITreeChangeListener {
+	
+	private static final String PROPERTY_NAME_COLUMN = "Property";
+	private static final String VALUE_COLUMN = "Value";
+	
     private TreeViewModel mModel;
 
     private TreeViewer mTreeViewer;
@@ -184,16 +211,50 @@ public class PropertyViewer extends Composite implements ITreeChangeListener {
     public PropertyViewer(Composite parent) {
         super(parent, SWT.NONE);
         setLayout(new FillLayout());
-        mTreeViewer = new TreeViewer(this, SWT.NONE);
-
+        mTreeViewer = new TreeViewer(this, SWT.FULL_SELECTION);
+        
         mTree = mTreeViewer.getTree();
         mTree.setLinesVisible(true);
         mTree.setHeaderVisible(true);
-
+        
+        TreeViewerEditor.create(mTreeViewer,  new ColumnViewerEditorActivationStrategy(mTreeViewer), ColumnViewerEditor.DEFAULT);
+        
+        mTreeViewer.setCellEditors(new CellEditor[] {new TextCellEditor(mTree), new TextCellEditor(mTree)});
+        //mTreeViewer.getColumnViewerEditor()
+        mTreeViewer.setCellModifier(new ICellModifier() {
+			
+			@Override
+			public void modify(Object obj, String columnProperty, Object obj1) {
+				
+			}
+			
+			@Override
+			public Object getValue(Object obj, String columnProperty) {
+				ViewNode.Property property = (ViewNode.Property) obj;
+				if (columnProperty == VALUE_COLUMN) {
+					return property.value;
+				} else if (columnProperty == PROPERTY_NAME_COLUMN) {
+					return property.name;
+				}
+				return obj.toString();
+			}
+			
+			@Override
+			public boolean canModify(Object obj, String columnProperty) {
+				if (columnProperty == VALUE_COLUMN) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}); 
+        
+        mTreeViewer.setColumnProperties(new String[] {PROPERTY_NAME_COLUMN, VALUE_COLUMN}); 
+        
         TreeColumn propertyColumn = new TreeColumn(mTree, SWT.NONE);
-        propertyColumn.setText("Property");
+        propertyColumn.setText(PROPERTY_NAME_COLUMN);
         TreeColumn valueColumn = new TreeColumn(mTree, SWT.NONE);
-        valueColumn.setText("Value");
+        valueColumn.setText(VALUE_COLUMN);
 
         mModel = TreeViewModel.getModel();
         ContentProvider contentProvider = new ContentProvider();
@@ -211,6 +272,12 @@ public class PropertyViewer extends Composite implements ITreeChangeListener {
 
         addControlListener(mControlListener);
 
+        
+//        final MenuManager menuMgr = new MenuManager("#MenuManager");
+//        final Menu menu = menuMgr.createContextMenu(mTreeViewer.getControl());
+//        menuMgr.setRemoveAllWhenShown(true);
+//        menuMgr.setVisible(true);
+        
         treeChanged();
     }
 
