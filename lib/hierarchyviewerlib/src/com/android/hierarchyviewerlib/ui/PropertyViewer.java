@@ -16,6 +16,8 @@
 
 package com.android.hierarchyviewerlib.ui;
 
+import com.android.ddmlib.Log;
+import com.android.hierarchyviewerlib.device.DeviceBridge;
 import com.android.hierarchyviewerlib.device.ViewNode;
 import com.android.hierarchyviewerlib.device.ViewNode.Property;
 import com.android.hierarchyviewerlib.models.TreeViewModel;
@@ -68,11 +70,14 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PropertyViewer extends Composite implements ITreeChangeListener {
 	
 	private static final String PROPERTY_NAME_COLUMN = "Property";
 	private static final String VALUE_COLUMN = "Value";
+	private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 	
     private TreeViewModel mModel;
 
@@ -230,7 +235,8 @@ public class PropertyViewer extends Composite implements ITreeChangeListener {
 				if (columnProperty == VALUE_COLUMN) {
 					property.value = (String) newValue;
 					mTreeViewer.update(treeItem, new String[] {PROPERTY_NAME_COLUMN, VALUE_COLUMN});
-//					mTreeViewer.refresh();
+					doRefresh();
+					doUpdateWindowProperty(property);
 				}
 //				Property property = (Property) treeItem.getData();
 //				property.value = (String) newValue;
@@ -366,5 +372,13 @@ public class PropertyViewer extends Composite implements ITreeChangeListener {
                 mTreeViewer.refresh();
             }
         });
+    }
+    
+    private void doUpdateWindowProperty(final Property property) {
+    	mExecutor.execute(new Runnable() {
+    		public void run() {
+    	    	DeviceBridge.updateWindowProperty(mSelectedNode.viewNode.window, property);
+    		}
+    	});
     }
 }

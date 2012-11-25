@@ -345,7 +345,7 @@ public class ViewNode {
         return name + "@" + hashCode; //$NON-NLS-1$
     }
 
-    public static class Property {
+	public static class Property {
         public String name;
 
         public String value;

@@ -38,8 +38,8 @@ public final class DdmPreferences {
     public final static int DEFAULT_SELECTED_DEBUG_PORT = 8700;
     /** Default value for the debug port base */
     public final static int DEFAULT_DEBUG_PORT_BASE = 8600;
-    /** Default value for the logcat {@link LogLevel} */
-    public final static LogLevel DEFAULT_LOG_LEVEL = LogLevel.ERROR;
+    /** Default value for the logcat {@link LogLevel} */ //for dev purposes
+    public final static LogLevel DEFAULT_LOG_LEVEL = LogLevel.VERBOSE;
     /** Default timeout values for adb connection (milliseconds) */
     public static final int DEFAULT_TIMEOUT = 5000; // standard delay, in ms
     /** Default profiler buffer size (megabytes) */

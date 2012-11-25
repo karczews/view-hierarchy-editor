@@ -23,6 +23,7 @@ import com.android.ddmlib.Log;
 import com.android.ddmlib.MultiLineReceiver;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
+import com.android.hierarchyviewerlib.device.ViewNode.Property;
 import com.android.hierarchyviewerlib.ui.util.PsdFile;
 
 import org.eclipse.swt.graphics.Image;
@@ -68,6 +69,10 @@ public class DeviceBridge {
             new HashMap<IDevice, ViewServerInfo>();
 
     private static int sNextLocalPort = DEFAULT_SERVER_PORT;
+    
+    private static final String UPDATE_PROPERTY_COMMAND = "UPDATE_PROPERTY";
+    
+    private static final String DONE_RESPONSE = "DONE.";
 
     public static class ViewServerInfo {
         public final int protocolVersion;
@@ -362,7 +367,7 @@ public class DeviceBridge {
             BufferedReader in = connection.getInputStream();
             String line;
             while ((line = in.readLine()) != null) {
-                if ("DONE.".equalsIgnoreCase(line)) { //$NON-NLS-1$
+                if (DONE_RESPONSE.equalsIgnoreCase(line)) { //$NON-NLS-1$
                     break;
                 }
 
@@ -429,6 +434,34 @@ public class DeviceBridge {
         return -1;
     }
 
+    public static boolean updateWindowProperty(Window window, Property property) {
+    	boolean hasSent = false;
+    	if (window == null || property == null) return false;
+    	
+        DeviceConnection connection = null;
+    	try {
+    		connection = new DeviceConnection(window.getDevice());
+    		String command = UPDATE_PROPERTY_COMMAND + " "
+					+ property.name + "=" + property.value.length() + ","
+					+ property.value;
+			connection.sendCommand(command);
+			BufferedReader in = connection.getInputStream();
+    		String response = in.readLine();
+    		in.close();
+    		Log.d(TAG, "send update property command:" + command + " got response:" + response);
+    		if (DONE_RESPONSE.equalsIgnoreCase(response)) hasSent = true;
+    	} catch (IOException e) {
+            Log.e(TAG, "Failed to send update command to window: " + window.getTitle() + " on device:" + window.getDevice());
+            Log.e(TAG, e);
+		} finally {
+			if (connection != null) {
+				connection.close();	
+			}
+    	}
+    	
+    	return hasSent;
+    }
+    
     public static ViewNode loadWindowData(Window window) {
         DeviceConnection connection = null;
         try {
@@ -438,8 +471,10 @@ public class DeviceBridge {
             ViewNode currentNode = null;
             int currentDepth = -1;
             String line;
+        	Log.v(TAG, "loadingWindowData - window:" + window.getTitle() + " " + window.getHashCode());
             while ((line = in.readLine()) != null) {
-                if ("DONE.".equalsIgnoreCase(line)) {
+            	Log.v(TAG, line);
+                if (DONE_RESPONSE.equalsIgnoreCase(line)) {
                     break;
                 }
                 int depth = 0;
@@ -508,7 +543,7 @@ public class DeviceBridge {
     private static boolean loadProfileData(ViewNode node, BufferedReader in) throws IOException {
         String line;
         if ((line = in.readLine()) == null || line.equalsIgnoreCase("-1 -1 -1") //$NON-NLS-1$
-                || line.equalsIgnoreCase("DONE.")) { //$NON-NLS-1$
+                || line.equalsIgnoreCase(DONE_RESPONSE)) { //$NON-NLS-1$
             return false;
         }
         String[] data = line.split(" ");
@@ -541,6 +576,7 @@ public class DeviceBridge {
         } catch (Exception e) {
             Log.e(TAG, "Unable to capture data for node " + viewNode + " in window "
                     + window.getTitle() + " on device " + window.getDevice());
+            Log.e(TAG, e);
         } finally {
             if (connection != null) {
                 connection.close();
