@@ -51,7 +51,7 @@ public class DeviceBridge {
 
     public static final String TAG = "hierarchyviewer";
 
-    private static final int DEFAULT_SERVER_PORT = 4939;
+    private static final int DEFAULT_SERVER_PORT = 4949;
 
     // These codes must match the auto-generated codes in IWindowManager.java
     // See IWindowManager.aidl as well
