@@ -434,14 +434,14 @@ public class DeviceBridge {
         return -1;
     }
 
-    public static boolean updateWindowProperty(Window window, Property property) {
+    public static boolean updateWindowProperty(Window window, Property property, String hashcode) {
     	boolean hasSent = false;
     	if (window == null || property == null) return false;
     	
         DeviceConnection connection = null;
     	try {
     		connection = new DeviceConnection(window.getDevice());
-    		String command = UPDATE_PROPERTY_COMMAND + " "
+			String command = UPDATE_PROPERTY_COMMAND + " " + hashcode + " "
 					+ property.name + "=" + property.value.length() + ","
 					+ property.value;
 			connection.sendCommand(command);

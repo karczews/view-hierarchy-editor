@@ -377,7 +377,7 @@ public class PropertyViewer extends Composite implements ITreeChangeListener {
     private void doUpdateWindowProperty(final Property property) {
     	mExecutor.execute(new Runnable() {
     		public void run() {
-    	    	DeviceBridge.updateWindowProperty(mSelectedNode.viewNode.window, property);
+    	    	DeviceBridge.updateWindowProperty(mSelectedNode.viewNode.window, property, mSelectedNode.viewNode.hashCode);
     		}
     	});
     }
